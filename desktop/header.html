@@ -1,0 +1,91 @@
+<script type="text/discourse-plugin" version="0.8">
+  const container = Discourse.__container__;
+  const { ajax } = require("discourse/lib/ajax");   
+
+  function alphaId(a, b) {
+    if (a.id < b.id) {
+      return -1;
+    }
+    if (a.id > b.id) {
+      return 1;
+    }
+    return 0;
+  }
+  
+  function tagCount(a, b) {
+    if (a.count > b.count) {
+      return -1;
+    }
+    if (a.count < b.count) {
+      return 1;
+    }
+    return 0;
+  }
+
+  debugger;
+  const currentUser = api.getCurrentUser();
+
+  api.registerConnectorClass('below-site-header', 'tag-sidebar', {
+    tagName: "div.sticky-sidebar",
+    setupComponent(args, component) {
+
+
+      component.set('hostname', window.location.hostname);
+      api.onPageChange((url) => {
+        ajax("/tags.json").then(function (result) {
+            debugger;
+            let tagsCategories = result.extras.categories;
+            let tagsAll = result.tags.sort(tagCount);
+            let foundTags = [];
+
+            component.set("tagList", tagsAll);
+
+            if (url.match(/^\/c\/(.*)/)) {
+                // if category
+                const controller = container.lookup(
+                  "controller:navigation/category"
+                );
+                let category = controller.get("category");
+                component.set("category", category);
+
+                if (tagsCategories.find(({ id }) => id === category.id)) {
+                  component.set("hideSidebar", false);
+                  // if category has a tag list
+                  let categoryId = tagsCategories.find(
+                    ({ id }) => id === category.id
+                  );
+                  if (settings.sort_by_popularity) {
+                    foundTags = categoryId.tags.sort(tagCount);
+                  } else {
+                    foundTags = categoryId.tags.sort(alphaId);
+                  }
+                }
+
+                component.set("tagList", foundTags);
+            }
+
+            
+           
+        });
+      })
+    }
+  });
+</script>
+
+<script type="text/x-handlebars" data-template-name="/connectors/below-site-header/tag-sidebar">
+  <div>
+    <div class="discourse-sidebar-tags">
+        <div class="sidebar-tags-list">
+          <h3 class="tags-list-title">{{theme-i18n "tag-title"}}</h3>
+            {{#each tagList as |t|}}
+              {{discourse-tag t.id style="box"}}
+            {{/each}}
+          </div>
+    </div>
+  </div>
+</script>
+<script>
+ Ember.Handlebars.registerHelper('test', function () {
+    return `test`;
+  });
+</script>
