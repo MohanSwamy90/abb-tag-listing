@@ -25,7 +25,7 @@
   debugger;
   const currentUser = api.getCurrentUser();
 
-  api.registerConnectorClass('below-site-header', 'tag-sidebar', {
+  api.registerConnectorClass('before-topic-list', 'tag-sidebar', {
     tagName: "div.sticky-sidebar",
     setupComponent(args, component) {
 
@@ -72,7 +72,7 @@
   });
 </script>
 
-<script type="text/x-handlebars" data-template-name="/connectors/below-site-header/tag-sidebar">
+<script type="text/x-handlebars" data-template-name="/connectors/before-topic-list/tag-sidebar">
   <div>
     <div class="discourse-sidebar-tags">
         <div class="sidebar-tags-list">
